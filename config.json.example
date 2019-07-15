@@ -1,0 +1,22 @@
+{
+        "config": [{
+        "token_account": "token_issuer",
+        "symbol": "TOKEN",
+        "token_memo":"You got a token",
+        "reply": true,
+        "sucess_reply_body": "Here is your token",
+        "fail_reply_body": "Sorry, you need more token in order to use this service.",
+        "no_token_left_body": "Sorry, out of token, please retry later...",
+        "no_token_left_for_today": "You need to own more TOKEN (5 TOKEN in your wallet allows you to send 1 TOKEN per day)",
+        "comment_command": "!TOKEN",
+        "user_can_specify_amount": true,
+        "default_amount": 1,
+        "maximum_amount_per_comment": 15,
+        "token_in_wallet_for_each_outgoing_token": 5,
+        "min_token_in_wallet": 5,
+        "usage_upvote_percentage": 0
+        }],
+        "no_broadcast": false,
+        "print_log_at_block": 300,
+        "wallet_password": "walletpass"
+}
