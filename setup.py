@@ -54,7 +54,7 @@ if __name__ == '__main__':
         version=VERSION,
         description='Distribution of steem-engine Token through comments',
         url='http://github.com/steem-engine-exchange/distribubot',
-        long_description=get_long_description(),
+        # long_description=get_long_description(),
         author='Holger Nahrstaedt',
         author_email='holgernahrstaedt@gmx.de',
         maintainer='Holger Nahrstaedt',
