@@ -4,13 +4,25 @@
 Scans blocks for new comments containing the given comment_command. The the comment author has suffient
  token, the token account will send token to the parent author.
 
+### Installation of python packages
+```
+pip3 install distribubot
+```
+
+or clone the git and install the package by
+```
+pip3 install beem steemengine
+git clone https://github.com/steem-engine-exchange/distribubot.git
+cd distribubot
+python3 setup.py install
+```
 
 #### Running
 Can be running all day, will only be active when a comment with the comment_command was broadcasted.
 More than one token_account and  token can be specified. Please check config.json.example.
 
 ```
-$ distribubot /path/to/config.json
+$ distribubot /path/to/config.json --datadir=/datadir/ --logconfig=/root/git/distribubot/logger.json
 ```
 
 |        Option       | Value                                                |
@@ -31,3 +43,15 @@ $ distribubot /path/to/config.json
 | no_token_left_body | Reply body, when no token are left to send |
 | comment_command | Command which must be included in a comment, to activate the bot |
 | usage_upvote_percentage | When set to a percentage higher than 0, the comment with the command will be upvoted by the scot_account |
+
+
+## Running the scripts
+Adapt path in run-distribubot.sh
+```
+chmod a+x run-distribubot.sh
+./run-distribubot.sh
+```
+or edit and copy the systemd service file to /etc/systemd/system and start it by
+```
+systemctl start distribubot
+```
