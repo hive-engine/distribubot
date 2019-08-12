@@ -37,6 +37,7 @@ $ distribubot /path/to/config.json --datadir=/datadir/ --logconfig=/root/git/dis
 | maximum_amount_per_comment | Maximum Amount of token that will be send at once|
 | token_in_wallet_for_each_outgoing_token | Limits the amount of token a user can send every 24 hours |
 | user_can_specify_amount | When true, the user can specify the amount to send up to maximum_amount, when false maximum_amount is always sent |
+|default_amount | Default amount of token |
 | sucess_reply_body | Reply body, when token are send|
 | no_token_left_for_today | Reply body, when the user has not sufficient token in its wallet |
 | fail_reply_body | Reply body, when no token are sent (not min_staked_token available) |

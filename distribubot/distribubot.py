@@ -82,11 +82,19 @@ class Distribubot:
                     continue
                 if op["author"] == self.token_config[token]["token_account"]:
                     continue
-
-                try:
-                    c_comment = Comment(op, steem_instance=self.stm)
-                    c_comment.refresh()
-                except:
+                cnt = 0
+                c_comment = None
+                while c_comment is None and cnt < 5:
+                    cnt += 1
+                    try:
+                        c_comment = Comment(op, steem_instance=self.stm)
+                        c_comment.refresh()
+                    except:
+                        nodelist = NodeList()
+                        nodelist.update_nodes()
+                        self.stm = Steem(node=nodelist.get_nodes(), num_retries=5, call_num_retries=3, timeout=15)                        
+                        time.sleep(1)
+                if cnt == 5:
                     logger.warn("Could not read %s/%s" % (op["author"], op["permlink"]))
                     continue
                 if c_comment.is_main_post():
