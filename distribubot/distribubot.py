@@ -149,8 +149,13 @@ class Distribubot:
                 self.log_data["new_commands"] += 1
                 wallet = Wallet(c_comment["author"], steem_instance=self.stm)
                 token_in_wallet = wallet.get_token(self.token_config[token]["symbol"])
+                balance = 0
                 if token_in_wallet is not None:
-                    balance = float(token_in_wallet["balance"])
+                    logger.info(token_in_wallet)
+                    if self.token_config[token]["count_only_staked_token"]:
+                        balance = 0
+                    else:
+                        balance = float(token_in_wallet["balance"])
                     if "stake" in token_in_wallet:
                         balance += float(token_in_wallet['stake']) 
                     if 'delegationsIn' in token_in_wallet and float(token_in_wallet['delegationsIn']) > 0:
@@ -167,6 +172,7 @@ class Distribubot:
                         max_token_to_give = 0
                 else:
                     max_token_to_give = 0
+                logger.info("token to give for %s: %f" % (c_comment["author"], max_token_to_give))
                 
                 db_data = read_data(self.data_file)
                 if "accounts" in db_data and c_comment["author"] in db_data["accounts"] and token in db_data["accounts"][c_comment["author"]]:
@@ -178,7 +184,7 @@ class Distribubot:
                 if amount > self.token_config[token]["maximum_amount_per_comment"]:
                     amount = self.token_config[token]["maximum_amount_per_comment"]
 
-                if token_in_wallet is None or float(token_in_wallet["balance"]) < self.token_config[token]["min_token_in_wallet"]:
+                if token_in_wallet is None or balance < self.token_config[token]["min_token_in_wallet"]:
                     reply_body = self.token_config[token]["fail_reply_body"]
                 elif max_token_to_give < 1:
                     reply_body = self.token_config[token]["no_token_left_for_today"]
