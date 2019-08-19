@@ -11,6 +11,7 @@
         "comment_command": "!TOKEN",
         "user_can_specify_amount": true,
         "default_amount": 1,
+        "count_only_staked_token": false,
         "maximum_amount_per_comment": 15,
         "token_in_wallet_for_each_outgoing_token": 5,
         "min_token_in_wallet": 5,

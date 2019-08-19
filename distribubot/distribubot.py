@@ -54,7 +54,8 @@ class Distribubot:
         necessary_fields = ["token_account", "symbol", "min_token_in_wallet", "comment_command",
                             "token_memo", "reply", "sucess_reply_body", "fail_reply_body", "no_token_left_body",
                             "user_can_specify_amount", "usage_upvote_percentage", "no_token_left_for_today",
-                            "token_in_wallet_for_each_outgoing_token", "maximum_amount_per_comment"]
+                            "token_in_wallet_for_each_outgoing_token", "maximum_amount_per_comment",
+                            "count_only_staked_token"]
         self.token_config = check_config(self.config["config"], necessary_fields, self.stm)
 
         self.blockchain = Blockchain(mode='head', steem_instance=self.stm)
