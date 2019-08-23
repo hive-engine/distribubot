@@ -61,13 +61,19 @@ class Distribubot:
         self.blockchain = Blockchain(mode='head', steem_instance=self.stm)
     
 
-    def run(self, start_block):
+    def run(self, start_block, stop_block):
         self.stm.wallet.unlock(self.config["wallet_password"])  
         self.blockchain = Blockchain(mode='head', steem_instance=self.stm)
-        stop_block = self.blockchain.get_current_block_num()
-
-        if start_block is not None:
+        current_block = self.blockchain.get_current_block_num()
+        if stop_block is None or stop_block > current_block:
+            stop_block = current_block
+        
+        if start_block is None:
+            start_block = current_block
+            last_block_num = current_block - 1
+        else:
             last_block_num = start_block - 1
+
         self.log_data["start_block_num"] = start_block
         for op in self.blockchain.stream(start=start_block, stop=stop_block, opNames=["comment"],  max_batch_size=50):
             self.log_data = print_block_log(self.log_data, op, self.config["print_log_at_block"])
@@ -103,12 +109,37 @@ class Distribubot:
                 if abs((c_comment["created"] - op['timestamp']).total_seconds()) > 9.0:
                     logger.warn("Skip %s, as edited" % c_comment["authorperm"])
                     continue
-                already_replied = False
-                for r in c_comment.get_all_replies():
-                    if r["author"] == self.token_config[token]["token_account"]:
-                        already_replied = True
+                
+                
+                already_voted = False
+                for v in c_comment["active_votes"]:
+                    if self.token_config[token]["token_account"] == v["voter"]:
+                        already_voted = True
+                if already_voted:
+                    continue
+                
+                already_replied = None
+                cnt = 0
+                while already_replied is None and cnt < 5:
+                    cnt += 1
+                    try:
+                        already_replied = False
+                        for r in c_comment.get_all_replies():
+                            if r["author"] == self.token_config[token]["token_account"]:
+                                already_replied = True
+                    except:
+                        already_replied = None
+                        self.stm.rpc.next()
+                if already_replied is None:
+                    already_replied = False
+                    for r in c_comment.get_all_replies():
+                        if r["author"] == self.token_config[token]["token_account"]:
+                            already_replied = True
+    
                 if already_replied:
                     continue
+                
+                
                 
                 muting_acc = Account(self.token_config[token]["token_account"], steem_instance=self.stm)
                 blocked_accounts = muting_acc.get_mutings()
@@ -243,6 +274,9 @@ class Distribubot:
                 else:
                     try:
                         self.stm.post("", reply_body, author=self.token_config[token]["token_account"], reply_identifier=reply_identifier)
+                        if self.token_config[token]["usage_upvote_percentage"] <= 0:
+                            time.sleep(5)
+                            self.stm.post("", "Command accepted!", author=self.token_config[token]["token_account"], reply_identifier=c_comment["authorperm"])
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -250,6 +284,7 @@ class Distribubot:
                         logger.warn("Could not reply to post")
                         continue
                     if self.token_config[token]["usage_upvote_percentage"] > 0:
+                        time.sleep(5)
                         try:
                             c_comment.upvote(self.token_config[token]["usage_upvote_percentage"], voter=self.token_config[token]["token_account"])
                         except Exception as e:
@@ -278,6 +313,8 @@ def main():
     nodelist = NodeList()
     nodelist.update_nodes()
     stm = Steem(node=nodelist.get_nodes(), num_retries=5, call_num_retries=3, timeout=15)
+    
+    logger.info(str(stm))
     data_file = os.path.join(datadir, 'data.db')
     bot = Distribubot(
         config,
@@ -298,13 +335,16 @@ def main():
   
     if "last_block_num" in data_db:
         start_block = data_db["last_block_num"] + 1
+        print("Start block_num: %d" % start_block)
+        stop_block = start_block + 1200
     else:
         start_block = None
+        stop_block = None
     logger.info("starting token distributor..")
     block_counter = None
     while True:
         
-        last_block_num = bot.run(start_block)
+        last_block_num = bot.run(start_block, stop_block)
         # Update nodes once a day
         if block_counter is None:
             block_counter = last_block_num
