@@ -343,7 +343,8 @@ def main():
     logger.info("starting token distributor..")
     block_counter = None
     while True:
-        logger.info("%d - %d" % (start_block, stop_block))
+        if start_block is not None and stop_block is not None:
+            logger.info("%d - %d" % (start_block, stop_block))
         last_block_num = bot.run(start_block, stop_block)
         # Update nodes once a day
         if block_counter is None:
