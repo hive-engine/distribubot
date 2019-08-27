@@ -342,9 +342,11 @@ def main():
         stop_block = None
     logger.info("starting token distributor..")
     block_counter = None
+    last_print_stop_block = stop_block
     while True:
-        if start_block is not None and stop_block is not None:
+        if start_block is not None and stop_block is not None and stop_block - last_print_stop_block > 1:
             logger.info("%d - %d" % (start_block, stop_block))
+            last_print_stop_block = stop_block
         last_block_num = bot.run(start_block, stop_block)
         # Update nodes once a day
         if block_counter is None:
@@ -356,6 +358,7 @@ def main():
             bot.stm = stm
         
         start_block = last_block_num + 1
+        
         stop_block = start_block + 100
         store_data(data_file, "last_block_num", last_block_num)
         time.sleep(3)
