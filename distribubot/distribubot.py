@@ -75,7 +75,7 @@ class Distribubot:
             last_block_num = start_block - 1
 
         self.log_data["start_block_num"] = start_block
-        for op in self.blockchain.stream(start=start_block, stop=stop_block, opNames=["comment"],  max_batch_size=50):
+        for op in self.blockchain.stream(start=start_block, stop=stop_block, opNames=["comment"]):
             self.log_data = print_block_log(self.log_data, op, self.config["print_log_at_block"])
             last_block_num = op["block_num"]
             
@@ -336,7 +336,7 @@ def main():
     if "last_block_num" in data_db:
         start_block = data_db["last_block_num"] + 1
         print("Start block_num: %d" % start_block)
-        stop_block = start_block + 1200
+        stop_block = start_block + 100
     else:
         start_block = None
         stop_block = None

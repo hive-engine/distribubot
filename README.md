@@ -4,7 +4,16 @@
 Scans blocks for new comments containing the given comment_command. The the comment author has suffient
  token, the token account will send token to the parent author.
 
+
+## Installation of packages for Ubuntu 18.04
+
+```
+sudo apt-get install python3-pip build-essential libssl-dev python3-dev
+```
+
 ### Installation of python packages
+
+
 ```
 pip3 install distribubot
 ```
