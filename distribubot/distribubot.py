@@ -335,7 +335,7 @@ def main():
   
     if "last_block_num" in data_db:
         start_block = data_db["last_block_num"] + 1
-        print("Start block_num: %d" % start_block)
+        logger.info("Start block_num: %d" % start_block)
         stop_block = start_block + 100
     else:
         start_block = None
@@ -343,7 +343,7 @@ def main():
     logger.info("starting token distributor..")
     block_counter = None
     while True:
-        
+        logger.info("%d - %d" % (start_block, stop_block))
         last_block_num = bot.run(start_block, stop_block)
         # Update nodes once a day
         if block_counter is None:
@@ -353,8 +353,9 @@ def main():
             stm = Steem(node=nodelist.get_nodes(), num_retries=5, call_num_retries=3, timeout=15)
             
             bot.stm = stm
-
+        
         start_block = last_block_num + 1
+        stop_block = start_block + 100
         store_data(data_file, "last_block_num", last_block_num)
         time.sleep(3)
 
