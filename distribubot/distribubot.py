@@ -101,7 +101,7 @@ class Distribubot:
                         nodelist.update_nodes()
                         self.stm = Steem(node=nodelist.get_nodes(), num_retries=5, call_num_retries=3, timeout=15)                        
                         time.sleep(1)
-                if cnt == 5:
+                if cnt == 5 or c_comment is None:
                     logger.warn("Could not read %s/%s" % (op["author"], op["permlink"]))
                     continue
                 if 'depth' in c_comment:
