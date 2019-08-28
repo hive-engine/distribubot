@@ -95,7 +95,7 @@ class Distribubot:
                 while c_comment is None and cnt < 5:
                     cnt += 1
                     try:
-                        c_comment = Comment(authorperm, steem_instance=self.stm)
+                        c_comment = Comment(authorperm, use_tags_api=False, steem_instance=self.stm)
                         c_comment.refresh()
                     except:
                         nodelist = NodeList()
