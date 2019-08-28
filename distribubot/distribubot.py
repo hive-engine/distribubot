@@ -95,7 +95,7 @@ class Distribubot:
                 while c_comment is None and cnt < 5:
                     cnt += 1
                     try:
-                        c_comment = Comment(authorperm, use_tags_api=False, steem_instance=self.stm)
+                        c_comment = Comment(authorperm, use_tags_api=True, steem_instance=self.stm)
                         c_comment.refresh()
                     except:
                         nodelist = NodeList()
@@ -118,7 +118,7 @@ class Distribubot:
                 
                 
                 already_voted = False
-                for v in c_comment.get_votes():
+                for v in c_comment.get_votes(raw_data=True):
                     if self.token_config[token]["token_account"] == v["voter"]:
                         already_voted = True
                 if already_voted:
