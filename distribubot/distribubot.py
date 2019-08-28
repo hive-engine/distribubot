@@ -91,10 +91,11 @@ class Distribubot:
                     continue
                 cnt = 0
                 c_comment = None
+                authorperm = construct_authorperm(op)
                 while c_comment is None and cnt < 5:
                     cnt += 1
                     try:
-                        c_comment = Comment(op, steem_instance=self.stm)
+                        c_comment = Comment(authorperm, steem_instance=self.stm)
                         c_comment.refresh()
                     except:
                         nodelist = NodeList()
