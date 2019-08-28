@@ -126,24 +126,26 @@ class Distribubot:
                 
                 already_replied = None
                 cnt = 0
-                while already_replied is None and cnt < 5:
-                    cnt += 1
-                    try:
+                if self.token_config[token]["usage_upvote_percentage"] == 0:
+                    
+                    while already_replied is None and cnt < 5:
+                        cnt += 1
+                        try:
+                            already_replied = False
+                            for r in c_comment.get_all_replies():
+                                if r["author"] == self.token_config[token]["token_account"]:
+                                    already_replied = True
+                        except:
+                            already_replied = None
+                            self.stm.rpc.next()
+                    if already_replied is None:
                         already_replied = False
                         for r in c_comment.get_all_replies():
                             if r["author"] == self.token_config[token]["token_account"]:
                                 already_replied = True
-                    except:
-                        already_replied = None
-                        self.stm.rpc.next()
-                if already_replied is None:
-                    already_replied = False
-                    for r in c_comment.get_all_replies():
-                        if r["author"] == self.token_config[token]["token_account"]:
-                            already_replied = True
     
-                if already_replied:
-                    continue
+                    if already_replied:
+                        continue
                 
                 
                 
