@@ -104,8 +104,13 @@ class Distribubot:
                 if cnt == 5:
                     logger.warn("Could not read %s/%s" % (op["author"], op["permlink"]))
                     continue
-                if c_comment.is_main_post():
-                    continue
+                if 'depth' in c_comment:
+                    if c_comment['depth'] == 0:
+                        continue
+                else:
+                    if c_comment["parent_author"] == '':
+                        continue
+ 
                 if abs((c_comment["created"] - op['timestamp']).total_seconds()) > 9.0:
                     logger.warn("Skip %s, as edited" % c_comment["authorperm"])
                     continue
