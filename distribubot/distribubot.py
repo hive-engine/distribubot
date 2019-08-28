@@ -118,7 +118,7 @@ class Distribubot:
                 
                 
                 already_voted = False
-                for v in c_comment["active_votes"]:
+                for v in c_comment.get_votes():
                     if self.token_config[token]["token_account"] == v["voter"]:
                         already_voted = True
                 if already_voted:
