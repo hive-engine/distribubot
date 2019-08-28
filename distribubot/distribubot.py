@@ -335,7 +335,10 @@ def main():
   
     if "last_block_num" in data_db:
         start_block = data_db["last_block_num"] + 1
+        if start_block == 35922615:
+            start_block += 1
         logger.info("Start block_num: %d" % start_block)
+        
         stop_block = start_block + 100
     else:
         start_block = None
@@ -344,9 +347,10 @@ def main():
     block_counter = None
     last_print_stop_block = stop_block
     while True:
-        if start_block is not None and stop_block is not None and stop_block - last_print_stop_block > 1:
-            logger.info("%d - %d" % (start_block, stop_block))
-            last_print_stop_block = stop_block
+        if start_block is not None and stop_block is not None:
+            if stop_block - last_print_stop_block > 1:
+                logger.info("%d - %d" % (start_block, stop_block))
+                last_print_stop_block = stop_block
         last_block_num = bot.run(start_block, stop_block)
         # Update nodes once a day
         if block_counter is None:
