@@ -62,8 +62,8 @@ class Distribubot:
     
 
     def run(self, start_block, stop_block):
-        self.stm.wallet.unlock(self.config["wallet_password"])  
-        self.blockchain = Blockchain(mode='head', steem_instance=self.stm)
+        self.hive.wallet.unlock(self.config["wallet_password"])  
+        self.blockchain = Blockchain(mode='head', blockchain_insetance=self.hive)
         current_block = self.blockchain.get_current_block_num()
         if stop_block is None or stop_block > current_block:
             stop_block = current_block
@@ -95,7 +95,7 @@ class Distribubot:
                 while c_comment is None and cnt < 5:
                     cnt += 1
                     try:
-                        c_comment = Comment(authorperm, use_tags_api=True, steem_instance=self.stm)
+                        c_comment = Comment(authorperm, use_tags_api=True, blockchain_insetance=self.hive)
                         c_comment.refresh()
                     except:
                         nodelist = NodeList()
@@ -137,7 +137,7 @@ class Distribubot:
                                     already_replied = True
                         except:
                             already_replied = None
-                            self.stm.rpc.next()
+                            self.hive.rpc.next()
                     if already_replied is None:
                         already_replied = False
                         for r in c_comment.get_all_replies():
@@ -149,7 +149,7 @@ class Distribubot:
                 
                 
                 
-                muting_acc = Account(self.token_config[token]["token_account"], steem_instance=self.stm)
+                muting_acc = Account(self.token_config[token]["token_account"], blockchain_insetance=self.hive)
                 blocked_accounts = muting_acc.get_mutings()
                 if c_comment["author"] in blocked_accounts:
                     logger.info("%s is blocked" % c_comment["author"])
@@ -281,10 +281,10 @@ class Distribubot:
                     logger.info("%s" % reply_body)
                 else:
                     try:
-                        self.stm.post("", reply_body, author=self.token_config[token]["token_account"], reply_identifier=reply_identifier)
+                        self.hive.post("", reply_body, author=self.token_config[token]["token_account"], reply_identifier=reply_identifier)
                         if self.token_config[token]["usage_upvote_percentage"] <= 0:
                             time.sleep(5)
-                            self.stm.post("", "Command accepted!", author=self.token_config[token]["token_account"], reply_identifier=c_comment["authorperm"])
+                            self.hive.post("", "Command accepted!", author=self.token_config[token]["token_account"], reply_identifier=c_comment["authorperm"])
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -320,9 +320,9 @@ def main():
 
     nodelist = NodeList()
     nodelist.update_nodes()
-    stm = Steem(node=nodelist.get_nodes(), num_retries=5, call_num_retries=3, timeout=15)
+    hive = Hive(node=nodelist.get_hive_nodes(), num_retries=5, call_num_retries=3, timeout=15)
     
-    logger.info(str(stm))
+    logger.info(str(hive))
     data_file = os.path.join(datadir, 'data.db')
     bot = Distribubot(
         config,
@@ -367,7 +367,7 @@ def main():
             nodelist.update_nodes()
             hive = Hive(node=nodelist.get_hive_nodes(), num_retries=5, call_num_retries=3, timeout=15)
             
-            bot.stm = stm
+            bot.hive = hive
         
         start_block = last_block_num + 1
         
