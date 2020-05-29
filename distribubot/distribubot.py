@@ -92,17 +92,20 @@ class Distribubot:
                 cnt = 0
                 c_comment = None
                 authorperm = construct_authorperm(op)
-                while c_comment is None and cnt < 5:
+                use_tags_api = True
+                while c_comment is None and cnt < 10:
                     cnt += 1
                     try:
-                        c_comment = Comment(authorperm, use_tags_api=True, blockchain_insetance=self.hive)
+                        c_comment = Comment(authorperm, use_tags_api=use_tags_api, blockchain_insetance=self.hive)
                         c_comment.refresh()
                     except:
+                        if cnt > 5:
+                            use_tags_api = False
                         nodelist = NodeList()
                         nodelist.update_nodes()
                         self.hive = Hive(node=nodelist.get_hive_nodes(), num_retries=5, call_num_retries=3, timeout=15)                        
-                        time.sleep(1)
-                if cnt == 5 or c_comment is None:
+                        time.sleep(3)
+                if cnt == 10 or c_comment is None:
                     logger.warn("Could not read %s/%s" % (op["author"], op["permlink"]))
                     continue
                 if 'depth' in c_comment:
