@@ -23,7 +23,7 @@ logger.setLevel(logging.INFO)
 logging.basicConfig()
 
 
-def print_block_log(log_data, op, print_log_at_block=200):
+def print_block_log(log_data, op, print_log_at_block=100):
     # Use variables for all dict elements for better code readability
     start_time = log_data["start_time"]
     last_block_num = log_data["last_block_num"]
@@ -44,8 +44,8 @@ def print_block_log(log_data, op, print_log_at_block=200):
     if (op["block_num"] - last_block_num) > print_log_at_block:
         time_for_blocks = time.time() - start_time
         logger.info("---------------------")
-        # print extended log when block log difference is greater than 200
-        if print_log_at_block > 200 and (stop_block_num - start_block_num) > 0:
+        # print extended log when block log difference is greater than 100
+        if print_log_at_block > 100 and (stop_block_num - start_block_num) > 0:
             percentage_done = (op["block_num"] - start_block_num) / (stop_block_num - start_block_num) * 100
             logger.info("Block %d -- Datetime %s -- %.2f %% finished" % (op["block_num"], op["timestamp"], percentage_done))
             running_hours = (stop_block_num - op["block_num"]) * time_for_blocks / print_log_at_block / 60 / 60
