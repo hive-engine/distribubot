@@ -11,8 +11,8 @@ pip3 install distribubot
 
 or clone the git and install the package by
 ```
-pip3 install beem steemengine
-git clone https://github.com/steem-engine-exchange/distribubot.git
+pip3 install beem hiveengine
+git clone https://github.com/hive-engine/distribubot.git
 cd distribubot
 python3 setup.py install
 ```
@@ -27,7 +27,7 @@ $ distribubot /path/to/config.json --datadir=/datadir/ --logconfig=/root/git/dis
 
 |        Option       | Value                                                |
 |:-------------------:|------------------------------------------------------|
-| token_account | steem account name, which should distribute the token       |
+| token_account | hive account name, which should distribute the token       |
 | symbol   | token symbol, which should be distributed                   |
 | token_memo   | memo which is attached to each token transfer               |
 | reply        | when true, a reply comment is broadcasted                   |

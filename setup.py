@@ -16,13 +16,13 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.2.0'
+VERSION = '0.3.0'
 
 tests_require = ['mock >= 2.0.0', 'pytest', 'pytest-mock', 'parameterized']
 
 requires = [
     "beem",
-    "steemengine"
+    "hiveengine"
 ]
 
 
@@ -52,14 +52,14 @@ if __name__ == '__main__':
     setup(
         name='distribubot',
         version=VERSION,
-        description='Distribution of steem-engine Token through comments',
-        url='http://github.com/steem-engine-exchange/distribubot',
+        description='Distribution of hive-engine Token through comments',
+        url='http://github.com/hive-engine/distribubot',
         # long_description=get_long_description(),
         author='Holger Nahrstaedt',
         author_email='holgernahrstaedt@gmx.de',
         maintainer='Holger Nahrstaedt',
         maintainer_email='holgernahrstaedt@gmx.de',
-        keywords=['steem', 'token', 'steem-engine'],
+        keywords=['hive', 'token', 'hive-engine'],
         packages=[
             "distribubot",
         ],

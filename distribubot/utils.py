@@ -8,8 +8,8 @@ from beem.nodelist import NodeList
 from beem.exceptions import ContentDoesNotExistsException
 from beem.utils import addTzInfo, resolve_authorperm, construct_authorperm, derive_permlink, formatTimeString
 from datetime import datetime, timedelta
-from steemengine.wallet import Wallet
-from steemengine.tokens import Tokens
+from hiveengine.wallet import Wallet
+from hiveengine.tokens import Tokens
 import time
 import shelve
 import json
@@ -66,7 +66,7 @@ def print_block_log(log_data, op, print_log_at_block=200):
     return log_data
 
 
-def check_config(config, necessary_fields, stm):
+def check_config(config, necessary_fields, hive):
     config_cnt = 0
     token_config = {}
     token_list = Tokens()
@@ -81,12 +81,12 @@ def check_config(config, necessary_fields, stm):
         if not all_fields_ok:
             continue
         # Check if token_account exists (exception will be raised when not)
-        Account(conf["token_account"], steem_instance=stm)
+        Account(conf["token_account"], blockchain_instance=hive)
         # Check if symbol exists
         if token_list.get_token(conf["symbol"]) is None:
             logger.warn("Token %s does not exists" % conf["symbol"])
             continue
-        scot_wallet = Wallet(conf["token_account"], steem_instance=stm)
+        scot_wallet = Wallet(conf["token_account"], blockchain_instance=hive)
         symbol = scot_wallet.get_token(conf["symbol"])
         logger.info("%s has %s token" % (conf["token_account"], str(symbol)))
         token_config[conf["symbol"]] = conf

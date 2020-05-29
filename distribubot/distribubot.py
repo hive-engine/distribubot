@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from beem import Steem
+from beem import Hive
 from beem.comment import Comment
 from beem.account import Account
 from beem.amount import Amount
@@ -8,8 +8,8 @@ from beem.nodelist import NodeList
 from beem.exceptions import ContentDoesNotExistsException
 from beem.utils import addTzInfo, resolve_authorperm, construct_authorperm, derive_permlink, formatTimeString
 from datetime import datetime, timedelta, date
-from steemengine.wallet import Wallet
-from steemengine.tokens import Tokens
+from hiveengine.wallet import Wallet
+from hiveengine.tokens import Tokens
 import time
 import shelve
 import json
@@ -40,10 +40,10 @@ def setup_logging(
 
 
 class Distribubot:
-    def __init__(self, config, data_file, steemd_instance):
+    def __init__(self, config, data_file, hived_instance):
         self.config = config
         self.data_file = data_file
-        self.stm = steemd_instance
+        self.hive = hived_instance
         
 
         self.token_config = {}
@@ -56,14 +56,14 @@ class Distribubot:
                             "user_can_specify_amount", "usage_upvote_percentage", "no_token_left_for_today",
                             "token_in_wallet_for_each_outgoing_token", "maximum_amount_per_comment",
                             "count_only_staked_token"]
-        self.token_config = check_config(self.config["config"], necessary_fields, self.stm)
+        self.token_config = check_config(self.config["config"], necessary_fields, self.hive)
 
-        self.blockchain = Blockchain(mode='head', steem_instance=self.stm)
+        self.blockchain = Blockchain(mode='head', blockchain_insetance=self.hive)
     
 
     def run(self, start_block):
-        self.stm.wallet.unlock(self.config["wallet_password"])  
-        self.blockchain = Blockchain(mode='head', steem_instance=self.stm)
+        self.hive.wallet.unlock(self.config["wallet_password"])  
+        self.blockchain = Blockchain(mode='head', blockchain_insetance=self.hive)
         stop_block = self.blockchain.get_current_block_num()
 
         if start_block is not None:
@@ -88,12 +88,12 @@ class Distribubot:
                 while c_comment is None and cnt < 5:
                     cnt += 1
                     try:
-                        c_comment = Comment(op, steem_instance=self.stm)
+                        c_comment = Comment(op, blockchain_insetance=self.hive)
                         c_comment.refresh()
                     except:
                         nodelist = NodeList()
                         nodelist.update_nodes()
-                        self.stm = Steem(node=nodelist.get_nodes(), num_retries=5, call_num_retries=3, timeout=15)                        
+                        self.hive = Hive(node=nodelist.get_hive_nodes(), num_retries=5, call_num_retries=3, timeout=15)                        
                         time.sleep(1)
                 if cnt == 5:
                     logger.warn("Could not read %s/%s" % (op["author"], op["permlink"]))
@@ -110,14 +110,14 @@ class Distribubot:
                 if already_replied:
                     continue
                 
-                muting_acc = Account(self.token_config[token]["token_account"], steem_instance=self.stm)
+                muting_acc = Account(self.token_config[token]["token_account"], blockchain_insetance=self.hive)
                 blocked_accounts = muting_acc.get_mutings()
                 if c_comment["author"] in blocked_accounts:
                     logger.info("%s is blocked" % c_comment["author"])
                     continue
                 
                 # Load bot token balance
-                bot_wallet = Wallet(self.token_config[token]["token_account"], steem_instance=self.stm)
+                bot_wallet = Wallet(self.token_config[token]["token_account"], blockchain_insetance=self.hive)
                 symbol = bot_wallet.get_token(self.token_config[token]["symbol"])
 
                 # parse amount when user_can_specify_amount is true
@@ -143,11 +143,11 @@ class Distribubot:
                     if self.token_config[token]["maximum_amount_per_comment"] and amount > self.token_config[token]["maximum_amount_per_comment"]:
                         amount = self.token_config[token]["maximum_amount_per_comment"]
                 
-                if not self.config["no_broadcast"] and self.stm.wallet.locked():
-                    self.stm.wallet.unlock(self.config["wallet_password"])                
+                if not self.config["no_broadcast"] and self.hive.wallet.locked():
+                    self.hive.wallet.unlock(self.config["wallet_password"])                
                 
                 self.log_data["new_commands"] += 1
-                wallet = Wallet(c_comment["author"], steem_instance=self.stm)
+                wallet = Wallet(c_comment["author"], blockchain_insetance=self.hive)
                 token_in_wallet = wallet.get_token(self.token_config[token]["symbol"])
                 balance = 0
                 if token_in_wallet is not None:
@@ -202,7 +202,7 @@ class Distribubot:
                     else:
                         token_memo = self.token_config[token]["token_memo"]
                         
-                    sendwallet = Wallet(self.token_config[token]["token_account"], steem_instance=self.stm)
+                    sendwallet = Wallet(self.token_config[token]["token_account"], blockchain_insetance=self.hive)
 
                     try:
                         logger.info("Sending %.2f %s to %s" % (amount, self.token_config[token]["symbol"], c_comment["parent_author"]))
@@ -242,7 +242,7 @@ class Distribubot:
                     logger.info("%s" % reply_body)
                 else:
                     try:
-                        self.stm.post("", reply_body, author=self.token_config[token]["token_account"], reply_identifier=reply_identifier)
+                        self.hive.post("", reply_body, author=self.token_config[token]["token_account"], reply_identifier=reply_identifier)
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -277,12 +277,12 @@ def main():
 
     nodelist = NodeList()
     nodelist.update_nodes()
-    stm = Steem(node=nodelist.get_nodes(), num_retries=5, call_num_retries=3, timeout=15)
+    hive = Hive(node=nodelist.get_hive_nodes(), num_retries=5, call_num_retries=3, timeout=15)
     data_file = os.path.join(datadir, 'data.db')
     bot = Distribubot(
         config,
         data_file,
-        stm
+        hive
     )
     
     data_file = os.path.join(datadir, 'data.db')
@@ -310,9 +310,9 @@ def main():
             block_counter = last_block_num
         elif last_block_num - block_counter > 20 * 60 * 24:
             nodelist.update_nodes()
-            stm = Steem(node=nodelist.get_nodes(), num_retries=5, call_num_retries=3, timeout=15)
+            hive = Hive(node=nodelist.get_hive_nodes(), num_retries=5, call_num_retries=3, timeout=15)
             
-            bot.stm = stm
+            bot.hive = hive
 
         start_block = last_block_num + 1
         store_data(data_file, "last_block_num", last_block_num)
