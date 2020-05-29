@@ -58,12 +58,12 @@ class Distribubot:
                             "count_only_staked_token"]
         self.token_config = check_config(self.config["config"], necessary_fields, self.hive)
 
-        self.blockchain = Blockchain(mode='head', blockchain_insetance=self.hive)
+        self.blockchain = Blockchain(mode='head', blockchain_instance=self.hive)
     
 
     def run(self, start_block, stop_block):
         self.hive.wallet.unlock(self.config["wallet_password"])  
-        self.blockchain = Blockchain(mode='head', blockchain_insetance=self.hive)
+        self.blockchain = Blockchain(mode='head', blockchain_instance=self.hive)
         current_block = self.blockchain.get_current_block_num()
         if stop_block is None or stop_block > current_block:
             stop_block = current_block
@@ -96,7 +96,7 @@ class Distribubot:
                 while c_comment is None and cnt < 10:
                     cnt += 1
                     try:
-                        c_comment = Comment(authorperm, use_tags_api=use_tags_api, blockchain_insetance=self.hive)
+                        c_comment = Comment(authorperm, use_tags_api=use_tags_api, blockchain_instance=self.hive)
                         c_comment.refresh()
                     except:
                         if cnt > 5:
@@ -152,14 +152,14 @@ class Distribubot:
                 
                 
                 
-                muting_acc = Account(self.token_config[token]["token_account"], blockchain_insetance=self.hive)
+                muting_acc = Account(self.token_config[token]["token_account"], blockchain_instance=self.hive)
                 blocked_accounts = muting_acc.get_mutings()
                 if c_comment["author"] in blocked_accounts:
                     logger.info("%s is blocked" % c_comment["author"])
                     continue
                 
                 # Load bot token balance
-                bot_wallet = Wallet(self.token_config[token]["token_account"], blockchain_insetance=self.hive)
+                bot_wallet = Wallet(self.token_config[token]["token_account"], blockchain_instance=self.hive)
                 symbol = bot_wallet.get_token(self.token_config[token]["symbol"])
 
                 # parse amount when user_can_specify_amount is true
@@ -189,7 +189,7 @@ class Distribubot:
                     self.hive.wallet.unlock(self.config["wallet_password"])                
                 
                 self.log_data["new_commands"] += 1
-                wallet = Wallet(c_comment["author"], blockchain_insetance=self.hive)
+                wallet = Wallet(c_comment["author"], blockchain_instance=self.hive)
                 token_in_wallet = wallet.get_token(self.token_config[token]["symbol"])
                 balance = 0
                 if token_in_wallet is not None:
@@ -244,7 +244,7 @@ class Distribubot:
                     else:
                         token_memo = self.token_config[token]["token_memo"]
                         
-                    sendwallet = Wallet(self.token_config[token]["token_account"], blockchain_insetance=self.hive)
+                    sendwallet = Wallet(self.token_config[token]["token_account"], blockchain_instance=self.hive)
 
                     try:
                         logger.info("Sending %.2f %s to %s" % (amount, self.token_config[token]["symbol"], c_comment["parent_author"]))
