@@ -15,7 +15,9 @@
         "maximum_amount_per_comment": 15,
         "token_in_wallet_for_each_outgoing_token": 5,
         "min_token_in_wallet": 5,
-        "usage_upvote_percentage": 0
+        "usage_upvote_percentage": 0,
+        "scale_upvote_weight": false,
+        "upvote_token_receiver": false
         }],
         "no_broadcast": false,
         "print_log_at_block": 300,

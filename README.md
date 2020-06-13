@@ -53,7 +53,9 @@ $ distribubot /path/to/config.json --datadir=/datadir/ --logconfig=/root/git/dis
 | fail_reply_body | Reply body, when no token are sent (not min_staked_token available) |
 | no_token_left_body | Reply body, when no token are left to send |
 | comment_command | Command which must be included in a comment, to activate the bot |
-| usage_upvote_percentage | When set to a percentage higher than 0, the comment with the command will be upvoted by the scot_account |
+| usage_upvote_percentage | When set to a percentage higher than 0, the comment with the command or the receiver will be upvoted by the scot_account |
+| scale_upvote_weight | When true, the upvote weight is scaled by the amount of send token |
+| upvote_token_receiver | When true, the receiver is upvoted instead |
 
 
 ## Running the scripts

@@ -91,6 +91,7 @@ class Distribubot:
                     continue
                 cnt = 0
                 c_comment = None
+                c_parent = None
                 authorperm = construct_authorperm(op)
                 use_tags_api = True
                 while c_comment is None and cnt < 10:
@@ -121,9 +122,16 @@ class Distribubot:
                 
                 
                 already_voted = False
-                for v in c_comment.get_votes(raw_data=True):
-                    if self.token_config[token]["token_account"] == v["voter"]:
-                        already_voted = True
+                if  self.token_config[token]["upvote_token_receiver"]:
+                    parent_identifier = construct_authorperm(c_comment["parent_author"], c_comment["parent_permlink"])
+                    c_parent = Comment(parent_identifier, blockchain_instance=self.hive)
+                    for v in c_parent.get_votes(raw_data=True):
+                        if self.token_config[token]["token_account"] == v["voter"]:
+                            already_voted = True          
+                else:
+                    for v in c_comment.get_votes(raw_data=True):
+                        if self.token_config[token]["token_account"] == v["voter"]:
+                            already_voted = True
                 if already_voted:
                     continue
                 
@@ -296,13 +304,28 @@ class Distribubot:
                         continue
                     if self.token_config[token]["usage_upvote_percentage"] > 0:
                         time.sleep(5)
-                        try:
-                            c_comment.upvote(self.token_config[token]["usage_upvote_percentage"], voter=self.token_config[token]["token_account"])
-                        except Exception as e:
-                            exc_type, exc_obj, exc_tb = sys.exc_info()
-                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                            logger.warn("%s - %s - %s" % (str(exc_type), str(fname), str(exc_tb.tb_lineno)))                        
-                            logger.warn("Could not upvote comment")
+                        upvote_percentge = self.token_config[token]["usage_upvote_percentage"]
+                        if self.token_config[token]["scale_upvote_weight"]:
+                            upvote_percentge = upvote_percentge * amount / self.token_config[token]["maximum_amount_per_comment"]
+                        print("Upvote with %.2f %%" % upvote_percentge)
+                        if self.token_config[token]["upvote_token_receiver"]:
+                            if c_parent is None:
+                                c_parent = Comment(parent_identifier, blockchain_instance=self.hive)
+                            try:
+                                c_parent.upvote(upvote_percentge, voter=self.token_config[token]["token_account"])
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                                logger.warn("%s - %s - %s" % (str(exc_type), str(fname), str(exc_tb.tb_lineno)))                        
+                                logger.warn("Could not upvote comment")                            
+                        else:
+                            try:
+                                c_comment.upvote(upvote_percentge, voter=self.token_config[token]["token_account"])
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                                logger.warn("%s - %s - %s" % (str(exc_type), str(fname), str(exc_tb.tb_lineno)))                        
+                                logger.warn("Could not upvote comment")
                             
                 time.sleep(4)
         return last_block_num
